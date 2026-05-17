@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Outfit', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: white;
+  background-color: #0c0b0b;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  overflow: hidden; /* Prevent scrolling since we're slide-based */
+  background: #0c0b0b;
+}
+
+@layer base {
+  h1, h2, h3 {
+    @apply font-extrabold tracking-tight;
+  }
+}
+
+@layer components {
+  .wrapped-gradient-bg {
+    @apply fixed inset-0 z-[-1] opacity-40;
+    background: radial-gradient(circle at 20% 30%, #1DB954 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, #ff00d4 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, #7d00ff 0%, transparent 50%);
+    filter: blur(80px);
+  }
+
+  .glass-card {
+    @apply bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8;
+  }
+
+  .wrapped-btn {
+    @apply px-8 py-4 bg-wrapped-green text-black font-bold rounded-full transition-all 
+           hover:scale-105 active:scale-95 shadow-lg shadow-wrapped-green/20;
+  }
+}
+
+/* Custom transitions for Framer Motion */
+.slide-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.slide-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 500ms, transform 500ms;
+}
+
+.slide-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.slide-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 500ms, transform 500ms;
+}
