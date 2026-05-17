@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, FastForward, Rewind, Heart } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // Slide Components
@@ -24,6 +23,11 @@ function App() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  
+  // Swipe State
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  
   const audioRef = useRef(null);
 
   const nextSlide = () => {
@@ -47,14 +51,27 @@ function App() {
     }
   };
 
-  const toggleMusic = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextSlide();
+    } else if (isRightSwipe) {
+      prevSlide();
     }
   };
 
@@ -94,7 +111,12 @@ function App() {
   const ActiveSlide = slides[currentSlide].component;
 
   return (
-    <div className="relative h-screen w-full bg-wrapped-black overflow-hidden font-outfit text-white">
+    <div 
+      className="relative h-screen w-full bg-wrapped-black overflow-hidden font-outfit text-white"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       {/* Dynamic Background */}
       <div className="wrapped-gradient-bg" />
       <Background3D currentSlide={currentSlide} />
@@ -131,28 +153,6 @@ function App() {
           <ActiveSlide onNext={nextSlide} />
         </motion.div>
       </AnimatePresence>
-
-      {/* Controls Overlay */}
-      <div className="fixed bottom-8 left-0 right-0 flex justify-center items-center gap-6 z-50">
-        {currentSlide > 0 && (
-          <button onClick={prevSlide} className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
-            <Rewind size={24} />
-          </button>
-        )}
-
-        <button
-          onClick={toggleMusic}
-          className="p-4 bg-wrapped-green text-black rounded-full hover:scale-110 transition-transform shadow-xl shadow-wrapped-green/40"
-        >
-          {isPlaying ? <Pause size={28} /> : <Play size={28} />}
-        </button>
-
-        {currentSlide < slides.length - 1 && (
-          <button onClick={nextSlide} className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
-            <FastForward size={24} />
-          </button>
-        )}
-      </div>
 
       {/* Audio Element */}
       <audio
